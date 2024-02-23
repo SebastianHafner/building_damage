@@ -1,31 +1,25 @@
 from typing import Sequence, Tuple, Optional
 import os
 
-import lightning.pytorch as pl
-import numpy as np
-import pathlib
+import pytorch_lightning as pl
 from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader
 import torchvision
 
 from datasets.base_dataset import LabeledDataset
 
+import hydra
+import pathlib
+import numpy as np
+
 
 class SLDataModule(pl.LightningDataModule):
     """Supervised learning datamodule."""
 
-    def __init__(self,
-                 data_dirs: Sequence[str],
-                 target_disasters: Sequence[str],
-                 labeled_transforms: torchvision.transforms.Compose,
-                 labeled_batch_size: int,
-                 num_workers: int,
-                 combine_loaders_mode: str,
-                 legacy: bool = False,
-                 exclude_disasters: Optional[Sequence[str]] = [],
-
-                 **kwargs
-                 ):
+    def __init__(self, data_dirs: Sequence[str], target_disasters: Sequence[str],
+                 labeled_transforms: torchvision.transforms.Compose, labeled_batch_size: int, num_workers: int,
+                 combine_loaders_mode: str, legacy: bool = False, exclude_disasters: Optional[Sequence[str]]=[],
+                 **kwargs):
         """Initialize supervised learning datamodule.
 
         Args:
@@ -56,28 +50,15 @@ class SLDataModule(pl.LightningDataModule):
 
     def setup(self, stage: str):
         if stage == "fit":
-            self.train_dataset = LabeledDataset(
-                self.all_files,
-                self.idxs["train_lbl"],
-                self.labeled_transforms,
-                train=True)
-            self.val_dataset = LabeledDataset(
-                self.all_files,
-                self.idxs["val_lbl"],
-                self.labeled_transforms,
-                train=False)
-
+            self.train_dataset = LabeledDataset(self.all_files, self.idxs["train_lbl"], self.labeled_transforms,
+                                                train=True)
+            self.val_dataset = LabeledDataset(self.all_files, self.idxs["val_lbl"], self.labeled_transforms,
+                                              train=False)
         if stage == "test":
-            self.test_dataset = LabeledDataset(self.all_files,
-                                               self.idxs["test"],
-                                               self.labeled_transforms,
-                                               train=False)
+            self.test_dataset = LabeledDataset(self.all_files, self.idxs["test"], self.labeled_transforms, train=False)
 
         if stage == "predict":
-            self.pred_dataset = LabeledDataset(self.all_files,
-                                               self.idxs["test"],
-                                               self.labeled_transforms,
-                                               train=False)
+            self.pred_dataset = LabeledDataset(self.all_files, self.idxs["test"], self.labeled_transforms, train=False)
 
     def train_dataloader(self):
         return DataLoader(
@@ -116,12 +97,10 @@ class SLDataModule(pl.LightningDataModule):
         return all_files
 
     @staticmethod
-    def get_stratified_train_val_split(all_files: Sequence[str]) -> Tuple[Sequence[int],
-                                                                          Sequence[int]]:
+    def get_stratified_train_val_split(all_files: Sequence[str]) -> Tuple[Sequence[int], Sequence[int]]:
 
        # Fixed stratified sample to split data into train/val
-        disaster_names = list(
-            map(lambda path: pathlib.Path(path).name.split("_")[0], all_files))
+        disaster_names = list(map(lambda path: pathlib.Path(path).name.split("_")[0], all_files))
         train_idxs, val_idxs = train_test_split(np.arange(len(all_files)),
                                                 test_size=0.1,
                                                 random_state=23,
@@ -175,8 +154,7 @@ class SLDataModule(pl.LightningDataModule):
         """Get train/val split stratified by disaster name.
         """
 
-        train_dirs = [
-            '/local_storage/datasets/sgerard/xview2/no_overlap/train']
+        train_dirs = ['C:/Users/shafner/datasets/xview2/train']
         all_files = []
         for d in train_dirs:
             for f in sorted(listdir(path.join(d, 'images'))):
@@ -184,11 +162,8 @@ class SLDataModule(pl.LightningDataModule):
                     all_files.append(path.join(d, 'images', f))
 
         # Fixed stratified sample to split data into train/val
-        disaster_names = list(
-            map(lambda path: Path(path).name.split("_")[0], all_files))
-        train_idxs, val_idxs = train_test_split(np.arange(len(all_files)),
-                                                test_size=0.1,
-                                                random_state=23,
+        disaster_names = list(map(lambda path: Path(path).name.split("_")[0], all_files))
+        train_idxs, val_idxs = train_test_split(np.arange(len(all_files)), test_size=0.1, random_state=23,
                                                 stratify=disaster_names)
         return train_idxs, val_idxs, all_files
 
@@ -223,11 +198,6 @@ class SLDataModule(pl.LightningDataModule):
 
 
 if __name__ == "__main__":
-    import hydra
-    import pytorch_lightning as pl
-    import pathlib
-    import numpy as np
-
     hydra.initialize(config_path="../conf")
     cfg = hydra.compose(config_name="config")
     pl.seed_everything(cfg.seed)

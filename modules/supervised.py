@@ -1,8 +1,7 @@
 from typing import Any, Tuple, Dict, Union, Optional, Type
-import os
 
 import cv2
-from lightning.pytorch import LightningModule
+from pytorch_lightning import LightningModule
 import torch
 import torchmetrics
 
@@ -59,9 +58,7 @@ class SLModule(LightningModule):
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.model(x)
 
-    def training_step(self,
-                      batch: Dict[str, Union[torch.Tensor, Any, str]],
-                      batch_idx: int) -> torch.Tensor:
+    def training_step(self, batch: Dict[str, Union[torch.Tensor, Any, str]], batch_idx: int) -> torch.Tensor:
         x: torch.Tensor = batch["img"]  # type: ignore
         y: torch.Tensor = batch["msk"]  # type: ignore
         y_hat = self.forward(x)
@@ -178,8 +175,7 @@ class SLModule(LightningModule):
                     on_epoch=True,
                     batch_size=x.shape[0])        
 
-    def configure_optimizers(self) -> Tuple[torch.optim.Optimizer,
-                                            torch.optim.lr_scheduler._LRScheduler]:
+    def configure_optimizers(self) -> Tuple[torch.optim.Optimizer, torch.optim.lr_scheduler._LRScheduler]:
 
         optimizer = self.optimizer(self.model.parameters())
         scheduler = self.scheduler(optimizer)
@@ -193,7 +189,7 @@ if __name__ == "__main__":
     import numpy as np
 
     hydra.initialize(config_path="../conf")
-    cfg = hydra.compose(config_name="supervised_config")
+    cfg = hydra.compose(config_name="config")
     pl.seed_everything(cfg.seed)
 
     network = hydra.utils.instantiate(cfg.network)

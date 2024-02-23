@@ -2,7 +2,7 @@ import json
 from shapely.wkt import loads
 from multiprocessing import Pool
 import sys
-from os import path, makedirs, listdir
+from pathlib import Path
 import timeit
 import cv2
 import random
@@ -16,14 +16,9 @@ np.random.seed(1)
 random.seed(1)
 sys.setrecursionlimit(10000)
 
-
-masks_dir = 'masks'
-
-
 ###To be changed####
-train_dirs = ['/local_storage/datasets/sgerard/xview2/train',
-              '/local_storage/datasets/sgerard/xview2/test',
-              '/local_storage/datasets/sgerard/xview2/tier3']
+dataset_dir = Path('C:/Users/shafner/datasets/xview2')
+dirs = ['test', 'train', 'tier3']
 
 
 def mask_for_polygon(poly, im_size=(1024, 1024)):
@@ -45,9 +40,9 @@ damage_dict = {
 }
 
 
-def process_image(json_file):
-    js1 = json.load(open(json_file))
-    js2 = json.load(open(json_file.replace('_pre_disaster', '_post_disaster')))
+def process_image(json_file: Path):
+    js1 = json.load(open(str(json_file)))
+    js2 = json.load(open(str(json_file).replace('_pre_disaster', '_post_disaster')))
 
     msk = np.zeros((1024, 1024), dtype='uint8')
     msk_damage = np.zeros((1024, 1024), dtype='uint8')
@@ -63,22 +58,26 @@ def process_image(json_file):
         _msk = mask_for_polygon(poly)
         msk_damage[_msk > 0] = damage_dict[subtype]
 
-    cv2.imwrite(json_file.replace('/labels/', '/masks/').replace('_pre_disaster.json',
-                '_pre_disaster.png'), msk, [cv2.IMWRITE_PNG_COMPRESSION, 9])
-    cv2.imwrite(json_file.replace('/labels/', '/masks/').replace('_pre_disaster.json',
-                '_post_disaster.png'), msk_damage, [cv2.IMWRITE_PNG_COMPRESSION, 9])
+    msk_file = json_file.parent.parent / 'masks' / f'{json_file.stem}.png'
+    cv2.imwrite(str(msk_file), msk, [cv2.IMWRITE_PNG_COMPRESSION, 9])
+    msk_damage_file = json_file.parent.parent / 'masks' / json_file.name.replace('_pre_disaster.json',
+                                                                                  '_post_disaster.png')
+    cv2.imwrite(str(msk_damage_file), msk_damage, [cv2.IMWRITE_PNG_COMPRESSION, 9])
 
 
 if __name__ == '__main__':
     t0 = timeit.default_timer()
 
     all_files = []
-    for d in train_dirs:
-        makedirs(path.join(d, masks_dir), exist_ok=True)
-        for f in sorted(listdir(path.join(d, 'images'))):
-            if '_pre_disaster.png' in f:
-                all_files.append(path.join(d, 'labels', f.replace(
-                    '_pre_disaster.png', '_pre_disaster.json')))
+    for d in dirs:
+        masks_dir = dataset_dir / d / 'masks'
+        masks_dir.mkdir(exist_ok=True)
+
+        images_dir = dataset_dir / d / 'images'
+        image_files = list([f for f in images_dir.glob('*.png')])
+        for f in image_files:
+            if '_pre_disaster.png' in f.name:
+                all_files.append(dataset_dir / d / 'labels' / f'{f.stem}.json')
 
     with Pool() as pool:
         _ = pool.map(process_image, all_files)

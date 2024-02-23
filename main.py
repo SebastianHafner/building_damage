@@ -1,22 +1,29 @@
 import os
 
 import hydra
-import lightning.pytorch as pl
+import pytorch_lightning as pl
 from omegaconf import DictConfig, OmegaConf
 import wandb
 
 
-@hydra.main(config_path="conf", config_name="config")
+@hydra.main(config_path="./conf", config_name="config", version_base=None)
 def main(cfg: DictConfig) -> pl.Trainer:
     pl.seed_everything(cfg.seed)
+
     config = OmegaConf.to_container(cfg, resolve=True)
+
     data_module = hydra.utils.instantiate(cfg.data)
     network = hydra.utils.instantiate(cfg.network)
-    wandb.init(project=cfg.logger.project,
-               config=config, 
-               group=cfg.group, 
-               name=cfg.name)
-    wandb.watch(network,log_freq=1000)
+
+    wandb.init(
+        project=cfg.logger.project,
+        config=config,
+        group=cfg.group,
+        name=cfg.name,
+        mode='disabled',
+    )
+    wandb.watch(network, log_freq=1000)
+
     trainer = hydra.utils.instantiate(cfg.trainer)
     logger = hydra.utils.instantiate(cfg.logger)
     logger.log_hyperparams(config)

@@ -13,11 +13,8 @@ def normalize_image(img: torch.Tensor) -> torch.Tensor:
     return img
 
 class LabeledDataset(Dataset):
-    def __init__(self,
-                 all_files: Sequence[str],
-                 labeled_idxs: Sequence[int],
-                 labeled_transforms:  torchvision.transforms.Compose,
-                 train: bool) -> None:
+    def __init__(self, all_files: Sequence[str], labeled_idxs: Sequence[int],
+                 labeled_transforms:  torchvision.transforms.Compose, train: bool) -> None:
         """
         Args:
             all_files: list of all files in the dataset
@@ -43,8 +40,7 @@ class LabeledDataset(Dataset):
         img_pre = cv2.imread(fn, cv2.IMREAD_COLOR)
         img_post = cv2.imread(fn.replace('_pre_', '_post_'), cv2.IMREAD_COLOR)
 
-        msk_pre = cv2.imread(fn.replace('/images/', '/masks/'),
-                             cv2.IMREAD_UNCHANGED)
+        msk_pre = cv2.imread(fn.replace('/images/', '/masks/'), cv2.IMREAD_UNCHANGED)
         msk_post = cv2.imread(fn.replace('/images/', '/masks/').replace(
             '_pre_disaster', '_post_disaster'), cv2.IMREAD_UNCHANGED)
 

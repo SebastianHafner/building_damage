@@ -2,19 +2,17 @@ defaults:
   - network: supervised
   - data: supervised_data
   - trainer: supervised_trainer
-  - hydra/job_logging: colorlog
-  - hydra/hydra_logging: colorlog
 
 seed: 42
 ###To be changed###
-model_dir: '/local_storage/users/paulbp/xview2/ssl'
+model_dir: 'C:/Users/shafner/damage_detection/output/networks'
 ###################
-log_dir: '/Midgard/home/paulbp/Xview2_Strong_Baseline/logs'
+log_dir: 'C:/Users/shafner/damage_detection/output/logs'
 group: 'xview2_supervised'
 name: '${group}_lr${network.optimizer.lr}_wd${network.optimizer.weight_decay}_bs${data.labeled_batch_size}_seed${seed}'
 
 logger:
-  _target_: lightning.pytorch.loggers.wandb.WandbLogger
+  _target_: pytorch_lightning.loggers.wandb.WandbLogger
   project: "supervised_xview2"
   group: '${group}'
   name: '${name}'

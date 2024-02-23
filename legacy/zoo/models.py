@@ -452,6 +452,7 @@ class Dpn92_Unet_Double(Siamese, Dpn92_Unet_Loc):
             decoder_filters[-5] * 2, 5, 1, stride=1, padding=0)
     pass
 
+
 if __name__ == "__main__":
     import torchsummary
     model = Res34_Unet_Double().to('cuda')
