@@ -20,7 +20,7 @@ def main(cfg: DictConfig) -> pl.Trainer:
         config=config,
         group=cfg.group,
         name=cfg.name,
-        mode='disabled',
+        # mode='disabled',
     )
     wandb.watch(network, log_freq=1000)
 
