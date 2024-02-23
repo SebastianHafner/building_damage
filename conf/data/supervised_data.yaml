@@ -2,9 +2,12 @@ _target_: datasets.supervised_dataset.SLDataModule
 data_dirs: 
 ####To be changed####
 # change the path to the path where you downloaded the dataset
-  - 'C:/Users/shafner/datasets/xview2/train'
-  - 'C:/Users/shafner/datasets/xview2/test'
-  - 'C:/Users/shafner/datasets/xview2/tier3'
+  # - 'C:/Users/shafner/datasets/xview2/train'
+  #  - 'C:/Users/shafner/datasets/xview2/test'
+  #  - 'C:/Users/shafner/datasets/xview2/tier3'
+  - '/home/s/h/shafner/datasets/xview2/train'
+  - '/home/s/h/shafner/datasets/xview2/test'
+  - '/home/s/h/shafner/datasets/xview2/tier3'
 ######################
 
 target_disasters: 
