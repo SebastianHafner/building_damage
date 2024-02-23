@@ -1,18 +1,15 @@
 #!/usr/bin/env bash
-#SBATCH --mem  128G
+#SBATCH --output /home/s/h/shafner/damage_detection/output/logs/%J_slurm.out
+#SBATCH --error  /home/s/h/shafner/damage_detection/output/logs/%J_slurm.err
+#SBATCH --mem-per-cpu 4600M
 #SBATCH --gres gpu:2
-#SBATCH --ntasks-per-node 2
-#SBATCH --cpus-per-task 6
-#SBATCH --constrain "khazadum"
-#SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --mail-user=shafner@kth.se
-#SBATCH --output=/home/s/h/shafner/damage_detection/output/logs/slurm/%j.out
+#SBATCH --cpus-per-task 16
 
 echo "Starting job ${SLURM_JOB_ID} on ${SLURMD_NODENAME}"
 nvidia-smi
 . /home/s/h/shafner/anaconda3/etc/profile.d/conda.sh
-# modify this to activate your environment
+
 conda activate dmg
 cd /home/s/h/shafner/repos/building_damage
 
-srun python /home/s/h/shafner/repos/building_damage/main.py  trainer.devices=2 data.num_workers=6 group="test"
+srun python /home/s/h/shafner/repos/building_damage/main.py  trainer.devices=2 data.num_workers=8 group="test"
