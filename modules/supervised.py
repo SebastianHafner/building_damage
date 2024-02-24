@@ -1,5 +1,5 @@
 from typing import Any, Tuple, Dict, Union, Optional, Type
-
+import os
 import cv2
 from pytorch_lightning import LightningModule
 import torch
@@ -115,8 +115,7 @@ class SLModule(LightningModule):
         return loss
 
     def on_predict_start(self) -> None:
-        os.makedirs(os.path.join(self.model_dir,
-                    f"{self.name}", "submission"), exist_ok=True)
+        os.makedirs(os.path.join(self.model_dir, f"{self.name}", "submission"), exist_ok=True)
 
     @staticmethod
     def pred_one_image(pred):
@@ -133,9 +132,7 @@ class SLModule(LightningModule):
         dmg_msk = dmg_msk.astype('uint8')
         return loc_msk, dmg_msk
 
-    def predict_step(self,
-                     batch: Dict[str, Union[torch.Tensor, Any, str]],
-                     batch_idx: int,
+    def predict_step(self, batch: Dict[str, Union[torch.Tensor, Any, str]], batch_idx: int,
                      dataloader_idx: int = 0) -> Any:
         x, fns = batch["img"],  batch["fn"]
         y_hat = self.forward(x)
@@ -147,9 +144,7 @@ class SLModule(LightningModule):
             cv2.imwrite(os.path.join(self.model_dir, f"{self.name}", "submission",  file_name.replace(
                 '_pre_disaster', '_damage_disaster_prediction')), msk_dmg)
 
-    def test_step(self,
-                  batch: Dict[str, Union[torch.Tensor, Any, str]],
-                  batch_idx: torch.Tensor) -> torch.Tensor:
+    def test_step(self, batch: Dict[str, Union[torch.Tensor, Any, str]], batch_idx: torch.Tensor) -> torch.Tensor:
         x, y = batch["img"], batch["msk"]
         y_hat = self.forward(x)
         y_sigm = torch.sigmoid(y_hat)
@@ -167,13 +162,8 @@ class SLModule(LightningModule):
         hot_dmg_msk[:, 0, ...] = loc_msk
         for i in range(y_hat.shape[1]):
             self.test_metric[i].update(hot_dmg_msk[:, i, ...], y[:, i, ...])
-            self.log(f"test_channel_{i}_F1",
-                    self.test_metric[i],
-                    prog_bar=True,
-                    logger=True,
-                    sync_dist=True,
-                    on_epoch=True,
-                    batch_size=x.shape[0])        
+            self.log(f"test_channel_{i}_F1", self.test_metric[i], prog_bar=True, logger=True, sync_dist=True,
+                     on_epoch=True, batch_size=x.shape[0])
 
     def configure_optimizers(self) -> Tuple[torch.optim.Optimizer, torch.optim.lr_scheduler._LRScheduler]:
 
