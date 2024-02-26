@@ -1,7 +1,7 @@
 _target_: pytorch_lightning.trainer.Trainer
 _partial_: True
 accelerator: "gpu"
-devices: 2 # to be overwritten by the cli
+devices: 1 # to be overwritten by the cli
 strategy: "ddp"
 max_epochs: 30 #it is 40 in the paper but due to slightly different batch size, we need to reduce the number of epochs
 precision: '16-mixed'

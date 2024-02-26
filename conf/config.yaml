@@ -5,9 +5,11 @@ defaults:
 
 seed: 42
 ###To be changed###
-model_dir: '/home/s/h/shafner/damage_detection/output/networks'
+# '/home/s/h/shafner/damage_detection/output/networks'
+model_dir: 'C:/Users/shafner/damage_detection/output/networks'
 ###################
-log_dir: '/home/s/h/shafner/damage_detection/output/logs'
+# '/home/s/h/shafner/damage_detection/output/logs'
+log_dir: 'C:/Users/shafner/damage_detection/output/logs'
 group: 'xview2_supervised'
 name: '${group}_lr${network.optimizer.lr}_wd${network.optimizer.weight_decay}_bs${data.labeled_batch_size}_seed${seed}'
 
