@@ -154,7 +154,7 @@ class SLDataModule(pl.LightningDataModule):
         """Get train/val split stratified by disaster name.
         """
 
-        train_dirs = ['/home/s/h/shafner/datasets/xview2/train', 'home/s/h/shafner/datasets/xview2/tier3']
+        train_dirs = ['/home/s/h/shafner/datasets/xview2/train', '/home/s/h/shafner/datasets/xview2/tier3']
         all_files = []
         for d in train_dirs:
             for f in sorted(listdir(path.join(d, 'images'))):
